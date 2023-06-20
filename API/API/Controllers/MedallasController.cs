@@ -13,19 +13,19 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuarioLogroesController : Controller
+    public class MedallasController : Controller
     {
         private readonly ApplicationDBContext _context;
 
-        public UsuarioLogroesController(ApplicationDBContext context)
+        public MedallasController(ApplicationDBContext context)
         {
             _context = context;
         }
 
         [HttpGet("token_{token}")]
-        public async Task<ActionResult<IEnumerable<LogroDTO>>> GetLogrosByUsuario(string token)
+        public async Task<ActionResult<MedallasDTO>> GetMedallasCount(string token)
         {
-            if (_context.Usuarios == null || _context.UsuariosLogros == null)
+            if (_context.Usuarios == null || _context.Medallas == null)
             {
                 return NotFound();
             }
@@ -34,6 +34,7 @@ namespace API.Controllers
 
             var usuario = await _context.Usuarios
                 .Where(x => x.Email == email)
+                .Include(x => x.Medallas)
                 .FirstOrDefaultAsync();
 
             if (usuario == null)
@@ -41,26 +42,24 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            List<LogroDTO> logros = new List<LogroDTO>();
+            MedallasDTO medallas = new MedallasDTO();
 
-            _context.UsuariosLogros.Where(x => x.UsuarioId == usuario.Id).ToList().ForEach(x =>
+            usuario.Medallas.ForEach(m =>
             {
-                Logro? l = _context.Logros.Where(logro => logro.Id == x.LogroId).FirstOrDefault();
-
-                if (l != null)
-                {
-                    LogroDTO ldto = new LogroDTO();
-                    ldto.AddContentLogro(l);
-                    logros.Add(ldto);
-                }
+                if (m.NivelMedallaId == 1)
+                    medallas.CountOro++;
+                else if (m.NivelMedallaId == 2)
+                    medallas.CountPlata++;
+                else 
+                    medallas.CountBronce++;
             });
 
-            return logros;
+            return medallas;
         }
 
-        private bool UsuarioLogroExists(int id)
+        private bool MedallaExists(int id)
         {
-          return (_context.UsuariosLogros?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.Medallas?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
