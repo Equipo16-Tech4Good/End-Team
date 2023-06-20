@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using API.Context;
 using API.Model.Entity;
 using API.Model.DTOs;
+using Microsoft.CodeAnalysis;
+using System.Net;
+using NuGet.Protocol;
+using API.Model.Responses;
 
 namespace API.Controllers
 {
@@ -22,36 +26,34 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet("token_{token}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(string token)
+        [HttpGet("GetUsuario/token_{token}")]
+        public async Task<ActionResult<ResponseUser>> GetUsuario(string token)
         {
-            if (_context.Usuarios == null)
+            ResponseUser badResponse = new ResponseUser
             {
-                return NotFound();
-            }
+                Mensaje = "Bad Request",
+                Status = (int) HttpStatusCode.NotFound,
+                Data = null
+            };
+
+            if (_context.Usuarios == null)
+                return badResponse;
 
             string email = token;
 
-            var usuario = await _context.Usuarios
-                .Where(x => x.Email == email)
-                .FirstOrDefaultAsync();
+            var usuario = GetByEmail(email);
 
             if (usuario == null)
+                return badResponse;
+            
+            ResponseUser response = new ResponseUser
             {
-                return NotFound();
-            }
+                Mensaje = "Usuario ",
+                Status = (int) HttpStatusCode.OK,
+                Data = usuario
+            };
 
-            return usuario;
-        }
-
-        [HttpGet("email_{email}")]
-        public async Task<ActionResult<bool>> EmailExist(string email)
-        {
-            Usuario? u = GetByEmail(email);
-
-            if (u != null)
-                return true;
-            else return false;
+            return response;
         }
 
 
@@ -69,11 +71,11 @@ namespace API.Controllers
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
-            return model.Email;
+            return Ok(model.Email);
         }
 
        
-        [HttpGet("login")]
+        [HttpGet("Login")]
         public async Task<ActionResult<string>> Login(LoginDTO loginDTO)
         {
             if (_context.Usuarios == null)
@@ -89,12 +91,6 @@ namespace API.Controllers
                     return loginDTO.Email;
             }
             return "Manolo";
-        }
-        
-
-        private bool UsuarioExists(int id)
-        {
-          return (_context.Usuarios?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
         private Usuario? GetByEmail(string email)

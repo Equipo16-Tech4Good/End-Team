@@ -46,12 +46,17 @@ namespace API.Controllers
 
             usuario.Medallas.ForEach(m =>
             {
-                if (m.NivelMedallaId == 1)
-                    medallas.CountOro++;
-                else if (m.NivelMedallaId == 2)
-                    medallas.CountPlata++;
-                else 
-                    medallas.CountBronce++;
+                NivelMedalla? nm = _context.NivelesMedallas.Where(x => x.Id== m.NivelMedallaId).FirstOrDefault();
+
+                if (nm != null)
+                {
+                    if (m.Titulo == "Oro")
+                        medallas.CountOro++;
+                    else if (m.Titulo == "Plata")
+                        medallas.CountPlata++;
+                    else
+                        medallas.CountBronce++;
+                }
             });
 
             return medallas;

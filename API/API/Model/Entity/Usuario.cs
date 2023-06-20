@@ -31,7 +31,6 @@ namespace API.Model.Entity
             Email = model.Email;
             Nombre = model.Nombre;
             Psswrd = model.Psswrd;
-            FechaRegistro = model.FechaRegistro;
         }
     }
 }
