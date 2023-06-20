@@ -57,9 +57,9 @@ namespace API.Controllers
 
                 if (nm != null)
                 {
-                    if (m.Titulo == "Oro")
+                    if (nm.Titulo == "Oro")
                         medallas.CountOro++;
-                    else if (m.Titulo == "Plata")
+                    else if (nm.Titulo == "Plata")
                         medallas.CountPlata++;
                     else
                         medallas.CountBronce++;

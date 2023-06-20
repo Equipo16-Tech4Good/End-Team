@@ -217,8 +217,6 @@ D:\GIT\End-Team\API\API\obj\Debug\net6.0\refint\API.dll
 D:\GIT\End-Team\API\API\obj\Debug\net6.0\API.pdb
 D:\GIT\End-Team\API\API\obj\Debug\net6.0\API.genruntimeconfig.cache
 D:\GIT\End-Team\API\API\obj\Debug\net6.0\ref\API.dll
-D:\GIT\End-Team\API\API\obj\Debug\net6.0\API.RazorAssemblyInfo.cache
-D:\GIT\End-Team\API\API\obj\Debug\net6.0\API.RazorAssemblyInfo.cs
 D:\GIT\End-Team\API\API\bin\Debug\net6.0\af\Humanizer.resources.dll
 D:\GIT\End-Team\API\API\bin\Debug\net6.0\ar\Humanizer.resources.dll
 D:\GIT\End-Team\API\API\bin\Debug\net6.0\az\Humanizer.resources.dll

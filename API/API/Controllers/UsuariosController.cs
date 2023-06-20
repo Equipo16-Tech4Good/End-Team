@@ -100,7 +100,7 @@ namespace API.Controllers
         }
 
      
-        [HttpGet("Login")]
+        [HttpPost("Login")]
         public async Task<ActionResult<ResponseToken>> Login(LoginDTO loginDTO)
         {
             ResponseToken badRequest = new ResponseToken
