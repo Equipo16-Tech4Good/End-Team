@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GIT\\H2O-Heros\\API\\API\\API.csproj": {}
+    "D:\\GIT\\End-Team\\API\\API\\API.csproj": {}
   },
   "projects": {
-    "D:\\GIT\\H2O-Heros\\API\\API\\API.csproj": {
+    "D:\\GIT\\End-Team\\API\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GIT\\H2O-Heros\\API\\API\\API.csproj",
+        "projectUniqueName": "D:\\GIT\\End-Team\\API\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "D:\\GIT\\H2O-Heros\\API\\API\\API.csproj",
+        "projectPath": "D:\\GIT\\End-Team\\API\\API\\API.csproj",
         "packagesPath": "C:\\Users\\ismas\\.nuget\\packages\\",
-        "outputPath": "D:\\GIT\\H2O-Heros\\API\\API\\obj\\",
+        "outputPath": "D:\\GIT\\End-Team\\API\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ismas\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,6 +40,24 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.5, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[6.0.14, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.2.3, )"
