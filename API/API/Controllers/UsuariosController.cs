@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using API.Context;
 using API.Model.Entity;
 using API.Model.DTOs;
 using Microsoft.CodeAnalysis;
 using System.Net;
-using NuGet.Protocol;
 using API.Model.Responses;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -45,10 +39,21 @@ namespace API.Controllers
 
             if (usuario == null)
                 return badResponse;
-            
+
+            _context.Entry(usuario).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return badResponse;
+            }
+
             ResponseUser response = new ResponseUser
             {
-                Mensaje = "Usuario ",
+                Mensaje = "Usuario Encontrado de manera satisfactoria",
                 Status = (int) HttpStatusCode.OK,
                 Data = usuario
             };
@@ -58,11 +63,26 @@ namespace API.Controllers
 
 
         [HttpPost("SingUp")]
-        public async Task<ActionResult<string>> SignUp(UsuarioDTO model)
+        public async Task<ActionResult<ResponseBoolean>> SignUp(UsuarioDTO model)
         {
             if (_context.Usuarios == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.Usuarios'  is null.");
+                return new ResponseBoolean
+                {
+                    Mensaje = "Bad request ",
+                    Status = (int)HttpStatusCode.NotFound,
+                    Data = false
+                };
+            }
+
+            if (GetByEmail(model.Email) != null)
+            {
+                return new ResponseBoolean
+                {
+                    Mensaje = "Email ya esta registrado",
+                    Status = (int) HttpStatusCode.NotFound,
+                    Data = false
+                };
             }
 
             Usuario usuario = new Usuario();
@@ -71,16 +91,29 @@ namespace API.Controllers
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
-            return Ok(model.Email);
+            return new ResponseBoolean
+            {
+                Mensaje = "Usuario creado de manera satisfactoria",
+                Status = (int ) HttpStatusCode.OK,
+                Data = true
+            };
         }
 
-       
+     
         [HttpGet("Login")]
-        public async Task<ActionResult<string>> Login(LoginDTO loginDTO)
+        public async Task<ActionResult<ResponseToken>> Login(LoginDTO loginDTO)
         {
+            ResponseToken badRequest = new ResponseToken
+            {
+                Status = (int)HttpStatusCode.NotFound,
+                Data = null
+            };
+
+
             if (_context.Usuarios == null)
             {
-                return Problem("Entity set 'ApplicationDbContext.Usuarios'  is null.");
+                badRequest.Mensaje = "Bad Request";
+                return badRequest;
             }
 
             Usuario? usuario = GetByEmail(loginDTO.Email);
@@ -88,9 +121,59 @@ namespace API.Controllers
             if (usuario == null)
             {
                 if (usuario.Psswrd == loginDTO.Psswrd)
-                    return loginDTO.Email;
+                {
+                    return new ResponseToken
+                    {
+                        Mensaje = "Usuario encontrado de manera satisfactoria",
+                        Status = (int)HttpStatusCode.OK,
+                        Data = usuario.Email
+                    };
+                }
+                else
+                {
+                    badRequest.Mensaje = "Password Erronea";
+                    return badRequest;
+                }
             }
-            return "Manolo";
+
+            badRequest.Mensaje = "Usuario no encontrado";
+            return badRequest;
+        }
+
+
+        [HttpPut("Update")]
+        public async Task<ActionResult<ResponseBoolean>> Update(UpdateUserDTO updatedUser)
+        {
+            ResponseBoolean badRequest = new ResponseBoolean
+            {
+                Status = (int)HttpStatusCode.NotFound,
+                Data = false
+            };
+
+            if (_context.Usuarios == null)
+            {
+                badRequest.Mensaje = "Bad Request";
+                return badRequest;
+            }
+
+            string email = updatedUser.Token;
+            Usuario? u = GetByEmail(email);
+
+            if (u == null)
+            {
+                badRequest.Mensaje = "Usuario no encontrado";
+                return badRequest;
+            }
+
+            u.RachaConexion = updatedUser.RachaConexion;
+            u.NivelEstanque = updatedUser.NivelEstanque;
+
+            return new ResponseBoolean
+            {
+                Mensaje = "Se ha actuualoizado el usuario de manera satisfactoria",
+                Status = (int)HttpStatusCode.OK,
+                Data = true
+            };
         }
 
         private Usuario? GetByEmail(string email)

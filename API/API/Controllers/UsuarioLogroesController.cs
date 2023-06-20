@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using API.Context;
 using API.Model.Entity;
 using API.Model.DTOs;
+using API.Model.Responses;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -22,12 +24,19 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet("token_{token}")]
-        public async Task<ActionResult<IEnumerable<LogroDTO>>> GetLogrosByUsuario(string token)
+        [HttpGet("GetByToken/token_{token}")]
+        public async Task<ActionResult<ResponseLogros>> GetLogrosByUsuario(string token)
         {
+            ResponseLogros badRequest = new ResponseLogros
+            {
+                Mensaje = "Bad Request",
+                Status = (int)HttpStatusCode.NotFound,
+                Data = null
+            };
+
             if (_context.Usuarios == null || _context.UsuariosLogros == null)
             {
-                return NotFound();
+                return badRequest;
             }
 
             string email = token;
@@ -38,7 +47,7 @@ namespace API.Controllers
 
             if (usuario == null)
             {
-                return NotFound();
+                return badRequest;
             }
 
             List<LogroDTO> logros = new List<LogroDTO>();
@@ -55,9 +64,47 @@ namespace API.Controllers
                 }
             });
 
-            return logros;
+            return new ResponseLogros
+            {
+                Mensaje = "Se han encontrado todos los logros del token",
+                Status = (int)HttpStatusCode.OK,
+                Data = logros
+            }; ;
         }
 
+
+        [HttpPost("Post")]
+        public async Task<ActionResult<ResponseBoolean>> Post(UsuarioLogroDTO model)
+        {
+            ResponseBoolean badRequest = new ResponseBoolean
+            {
+                Mensaje = "Bad Request",
+                Status = (int)HttpStatusCode.NotFound,
+                Data = false
+            };
+
+            if (_context.UsuariosLogros == null)
+            {
+                return badRequest;
+            }
+
+            Usuario usuario = _context.Usuarios.Where(x => x.Email == model.UsuarioToken).FirstOrDefault();
+            UsuarioLogro ul = new UsuarioLogro
+            {
+                UsuarioId = usuario.Id,
+                LogroId = model.LogroId
+            };
+
+            _context.UsuariosLogros.Add(ul);
+            await _context.SaveChangesAsync();
+
+            return new ResponseBoolean
+            {
+                Mensaje = "UsuarioLogro creado de manera satisfactoria",
+                Status = (int)HttpStatusCode.OK,
+                Data = true
+            };
+        }
         private bool UsuarioLogroExists(int id)
         {
           return (_context.UsuariosLogros?.Any(e => e.Id == id)).GetValueOrDefault();

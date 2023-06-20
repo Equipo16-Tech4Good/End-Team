@@ -11,6 +11,6 @@ namespace API.Model.Entity
         public string Titulo { get; set; }
         [StringLength(250)]
         [Required]
-        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
     }
 }

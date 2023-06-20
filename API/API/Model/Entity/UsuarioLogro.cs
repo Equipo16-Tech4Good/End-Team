@@ -6,8 +6,6 @@ namespace API.Model.Entity
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        public DateTime FechaObtencion { get; set; }
 
         [Required]
         public int UsuarioId { get; set; }

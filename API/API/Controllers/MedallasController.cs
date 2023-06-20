@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using API.Context;
 using API.Model.Entity;
 using API.Model.DTOs;
+using API.Model.Responses;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -22,12 +24,17 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet("token_{token}")]
-        public async Task<ActionResult<MedallasDTO>> GetMedallasCount(string token)
+        [HttpGet("GetByToken/token_{token}")]
+        public async Task<ActionResult<ResponseMedallas>> GetMedallasCount(string token)
         {
             if (_context.Usuarios == null || _context.Medallas == null)
             {
-                return NotFound();
+                return new ResponseMedallas
+                {
+                    Mensaje = "Bad Request",
+                    Status = (int)HttpStatusCode.NotFound,
+                    Data = null
+                };
             }
 
             string email = token;
@@ -42,7 +49,7 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            MedallasDTO medallas = new MedallasDTO();
+            MedallasDeUsuarioDTO medallas = new MedallasDeUsuarioDTO();
 
             usuario.Medallas.ForEach(m =>
             {
@@ -59,12 +66,45 @@ namespace API.Controllers
                 }
             });
 
-            return medallas;
+            return new ResponseMedallas
+            {
+                Mensaje = "Recuento de medallas",
+                Status = (int) HttpStatusCode.OK,
+                Data = medallas
+            };
         }
 
-        private bool MedallaExists(int id)
+        [HttpPost("Post")]
+        public async Task<ActionResult<ResponseBoolean>> Post(MedallaDTO model)
         {
-          return (_context.Medallas?.Any(e => e.Id == id)).GetValueOrDefault();
+            ResponseBoolean badRequest = new ResponseBoolean
+            {
+                Mensaje = "Bad Request",
+                Status = (int)HttpStatusCode.NotFound,
+                Data = false
+            };
+
+            if (_context.Medallas == null)
+            {
+                return badRequest;
+            }
+
+            Usuario usuario = _context.Usuarios.Where(x => x.Email == model.UsuarioToken).FirstOrDefault();
+            Medalla m = new Medalla
+            {
+                UsuarioId = usuario.Id,
+                NivelMedallaId = model.NivelMedallaId
+            };
+
+            _context.Medallas.Add(m);
+            await _context.SaveChangesAsync();
+
+            return new ResponseBoolean
+            {
+                Mensaje = "Medalla creada de manera satisfactoria",
+                Status = (int) HttpStatusCode.OK,
+                Data = true
+            };
         }
     }
 }

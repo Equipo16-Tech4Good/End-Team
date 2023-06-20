@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using API.Context;
 using API.Model.Entity;
+using API.Model.Responses;
+using System.Net;
 
 namespace API.Controllers
 {
@@ -21,23 +23,29 @@ namespace API.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<Mensaje>> RandomTip()
+        [HttpGet("RandomTip")]
+        public async Task<ActionResult<ResponseMensaje>> RandomTip()
         {
             Mensaje? randomMessage = _context.Mensajes.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+
             if (randomMessage != null)
             {
-                return randomMessage;
+                return new ResponseMensaje
+                {
+                    Mensaje = "Mensaje Encontrado",
+                    Status = (int)HttpStatusCode.OK,
+                    Data = randomMessage
+                };
             }
             else
             {
-                return NotFound(); // Si no se encuentra ningún mensaje en la base de datos
+                return new ResponseMensaje
+                {
+                    Mensaje = "Bad Request",
+                    Status = (int)HttpStatusCode.NotFound,
+                    Data = null
+                };
             }
-        }
-
-        private bool MensajeExists(int id)
-        {
-          return (_context.Mensajes?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

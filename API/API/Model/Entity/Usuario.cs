@@ -20,8 +20,6 @@ namespace API.Model.Entity
         public int NivelEstanque { get; set; } = 0;
         [Required]
         public int RachaConexion { get; set; } = 0;
-        [Required]
-        public DateTime FechaRegistro { get; set; }
 
         public List<Medalla> Medallas { get; set; } = new List<Medalla>();
         public List<UsuarioLogro> UsuarioLogros { get; set; } = new List<UsuarioLogro>();
