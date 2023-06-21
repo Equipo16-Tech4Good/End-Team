@@ -118,7 +118,7 @@ namespace API.Controllers
 
             Usuario? usuario = GetByEmail(loginDTO.Email);
 
-            if (usuario == null)
+            if (usuario != null)
             {
                 if (usuario.Psswrd == loginDTO.Psswrd)
                 {
